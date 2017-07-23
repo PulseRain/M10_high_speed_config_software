@@ -1,4 +1,4 @@
-#! python3
+#!/usr/bin/python3
 ###############################################################################
 # Copyright (c) 2016, PulseRain Technology LLC 
 #
@@ -6505,7 +6505,7 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
     appname      = 'M10 High Speed Config Utility'
     frameWidth   = 1098
     frameHeight  = 736
-    version = "1.0"
+    version = "1.2"
     
     def main(self):
         # This method should be left intact!
@@ -6703,7 +6703,9 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
         com_port  = self.com_combobox.get()
         baud_rate = self.baud_combobox.get()
         file_name = self.file_name_entry.get()
-            
+        
+        self.need_reinit = 1
+        
         if (self.need_reinit):
             
         
@@ -6788,13 +6790,14 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
              
         print ("=====> Start Time: ", datetime.datetime.now().strftime("%H:%M:%S"))
         
+      
         try:    
             self.Mustang_Console._args = ["load", self.flash_type, file_name]
                 
             if (file_name.endswith (".bin") or file_name.endswith (".rpd") or file_name.endswith (".dat")):
                 self.Mustang_Console._do_load_bin_file()
             elif (file_name.endswith (".hex") or file_name.endswith (".ihx") or file_name.endswith (".eep")):      
-                self.Mustang_Console._do_load_hex_file(self.flash_type, file_name)
+                self.Mustang_Console._do_load_hex_file()
         except:
             self.console_print ("Failed to load " + file_name + " into " + self.flash_type)
             self.need_reinit = True
@@ -6803,7 +6806,9 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
         end_time = time.clock()
         delta_time = end_time - start_time
         print ("==================> {0:0.2f}s\n".format(delta_time))  
-                
+        
+        self.M10_high_speed_config_console._serial.close()
+                        
         self.load_button.configure(state=NORMAL)
           
             
