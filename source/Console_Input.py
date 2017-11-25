@@ -34,20 +34,17 @@
 # See Ref[1] for more infomation
 #############################################################################
 
+import os
+
+if (os.name != 'nt'):
+    import getch
+
 class _GetchUnix:
     def __init__(self):
-        import tty, sys
+        pass
 
     def __call__(self):
-        import sys, tty, termios
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
+        return getch.getch()
 
 class _GetchWindows:
     def __init__(self):
@@ -62,7 +59,10 @@ class _Getch:
     screen."""
     def __init__(self):
         try:
-            self.impl = _GetchWindows()
+            if (os.name == 'nt'):    
+                self.impl = _GetchWindows()
+            else:
+                self.impl = _GetchUnix()
         except ImportError:
             self.impl = _GetchUnix()
 
@@ -80,12 +80,7 @@ class _KeyboardHitUnix:
         pass
         
     def __call__(self):
-        rlist, wlist, xlist = select([sys.stdin], [], [], 0)
-        
-        if rlist:
-            return True
-        else:
-            return False
+        return True
         
 class _KeyboardHitWindows:
     def __init__(self):
@@ -99,7 +94,10 @@ class _KBHit:
 
     def __init__(self):
         try:
-            self.impl = _KeyboardHitWindows()
+            if (os.name == 'nt'):
+                self.impl = _KeyboardHitWindows()
+            else:
+                self.impl = _KeyboardHitUnix()
         except ImportError:
             self.impl = _KeyboardHitUnix()
 
@@ -222,44 +220,83 @@ class Console_Input:
             print (self._prompt, end="", flush=True)
         
         while(1):
-            if (self.uart_raw_mode_enable):
-                if self._kbhit():
-                    c = self._getch()
+            
+            if (os.name == 'nt'):
+                if (self.uart_raw_mode_enable):
+                    if self._kbhit():
+                        c = self._getch()
+                    else:
+                        c = chr(0)
                 else:
-                    c = chr(0)
-            else:
+                    c = self._getch()
+            
+                
+                if (self.uart_raw_mode_enable):
+                    if (ord(c) == 0):
+                        self._line = ""
+                    else:
+                        self._line = c.decode()
+                    break
+                
+                if (ord(c) > 127):
+                    c = self._getch()
+                    if (ord(c) == ord('H')): # up arrow
+                        if (history_index >= 0):
+                            history_index = history_index - 1
+                        self._get_history(history_index)
+                    elif (ord(c) == ord('P')): # down arrow    
+                        if (history_index < (len(self._history) - 1)):
+                            history_index = history_index + 1
+                        self._get_history(history_index)
+                    
+                elif (self._input_valid(ord(c))):
+                    if (os.name == 'nt'):
+                        print (c.decode(), end="", flush=True)
+                        self._line = self._line + c.decode()
+                    else:
+                        print (c, end="", flush=True)
+                        self._line = self._line + c
+
+                elif (ord(c) == ord('\r')):
+                    print ("");
+                    break
+                elif (ord(c) == ord('\t')):
+                    self._line = self._line + self._tab_completion()
+                elif (ord(c) == 8): # backspace
+                    if (len (self._line)):
+                        print ("\b \b", end="", flush=True)
+                        self._line = self._line[:-1]
+            
+            else: # Linux
+
                 c = self._getch()
             
-            if (self.uart_raw_mode_enable):
-                if (ord(c) == 0):
-                    self._line = ""
-                else:
-                    self._line = c.decode()
-                break
-                
-            if (ord(c) > 127):
-                c = self._getch()
-                if (ord(c) == ord('H')): # up arrow
-                    if (history_index >= 0):
-                        history_index = history_index - 1
-                    self._get_history(history_index)
-                elif (ord(c) == ord('P')): # down arrow    
-                    if (history_index < (len(self._history) - 1)):
-                        history_index = history_index + 1
-                    self._get_history(history_index)
+                if (ord(c) == 27): # ESC
+                    c = self._getch()
+                    if (ord(c) == 91):
+                        c = self._getch()
+                        if (ord(c) == ord('A')): # up arrow
+                            if (history_index >= 0):
+                                history_index = history_index - 1
+                            self._get_history(history_index)
+                        elif (ord(c) == ord('B')): # down arrow    
+                            if (history_index < (len(self._history) - 1)):
+                                history_index = history_index + 1
+                            self._get_history(history_index)
                     
-            elif (self._input_valid(ord(c))):
-                print (c.decode(), end="", flush=True)
-                self._line = self._line + c.decode()
-            elif (ord(c) == ord('\r')):
-                print ("");
-                break
-            elif (ord(c) == ord('\t')):
-                self._line = self._line + self._tab_completion()
-            elif (ord(c) == 8): # backspace
-                if (len (self._line)):
-                    print ("\b \b", end="", flush=True)
-                    self._line = self._line[:-1]
+                elif (self._input_valid(ord(c))):
+                    print (c, end="", flush=True)
+                    self._line = self._line + c
+
+                elif (ord(c) == 10): # Enter
+                    print ("");
+                    break
+                elif (ord(c) == 9): # tab
+                    self._line = self._line + self._tab_completion()
+                elif (ord(c) == 127): # backspace
+                    if (len (self._line)):
+                        print ("\b \b", end="", flush=True)
+                        self._line = self._line[:-1]
             
         if (len(self._line)):
             if (len(self._history)):
