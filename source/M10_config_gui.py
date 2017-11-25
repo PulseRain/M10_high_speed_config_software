@@ -6505,7 +6505,7 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
     appname      = 'M10 High Speed Config Utility'
     frameWidth   = 1098
     frameHeight  = 736
-    version = "1.2"
+    version = "1.2.1"
     
     def main(self):
         # This method should be left intact!
@@ -6820,12 +6820,13 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
         self.root = Tk()
                     
         # create a temp ico file and use it 
-        tempFile= "./app_icon.ico"
-        iconfile= open(tempFile,"wb")
-        iconfile.write(base64.b64decode(self.icon.encode()))
-        iconfile.close()
-        self.root.iconbitmap(tempFile)
-        os.remove(tempFile)
+        if (os.name == 'nt'):
+            tempFile= "./app_icon.ico"
+            iconfile= open(tempFile,"wb")
+            iconfile.write(base64.b64decode(self.icon.encode()))
+            iconfile.close()
+            self.root.iconbitmap(tempFile)
+            os.remove(tempFile)
                 
         self.root.option_add('*background', '#D6DBE9')
         self.root.option_add('*foreground', '#000063')
