@@ -2026,6 +2026,8 @@ if __name__ == "__main__":
     com_port = "COM5"
     image_file = ""
     raw_uart_switch = 0
+    cfm_image = ""
+    ufm_image = ""
 
     #=========================================================================
     # print banner
@@ -2041,7 +2043,7 @@ if __name__ == "__main__":
     #=========================================================================
     
     try:
-          opts, args = getopt.getopt(sys.argv[1:],"hP:b:U:",[])
+          opts, args = getopt.getopt(sys.argv[1:],"hP:b:U:",["CFM=", "UFM="])
     except (getopt.GetoptError, err):
           print (str(err))
           sys.exit(1)
@@ -2053,9 +2055,14 @@ if __name__ == "__main__":
             com_port = args
         elif opt in ('-U'):
             image_file = args
+        elif opt in ('--CFM'):
+            cfm_image = args
+        elif opt in ('--UFM'):
+            ufm_image = args
         else:
             print ("Usage:\n  py M10_high_speed_config.py -P comport [-U new_nios_hex_file | -b baud_rate]")
             print ("  Options: \n    -U: replace default nios image with a new one\n    -b: baud rate in bps \n    -h print usage")
+            print ("\n    --CFM=image file for CFM \n    --UFM=image_file for UFM")
             print ("\n  Example: using com port 7, baud rate 115200, default nios image")
             print ("           py M10_high_speed_config.py -P COM7 -b 921600")
             sys.exit(1)
@@ -2151,6 +2158,7 @@ if __name__ == "__main__":
     for i in firmware_version:
         print (format(i, '02X'), end="")
    
+        
     #=========================================================================
     # configuration console
     #=========================================================================
@@ -2160,4 +2168,17 @@ if __name__ == "__main__":
     
     print (" Please type in command to configure the device. \n Use help to see the list of available commands.")     
     console = Mustang_Console(M10_high_speed_config_console)
-    console.run()
+    
+    #=========================================================================
+    # load CFM or UFM image for command line
+    #=========================================================================
+    if (cfm_image):
+        print ("CFM Image load: ", cfm_image)
+        console._args = ["", "CFM", cfm_image]
+        console._do_load()
+    elif (ufm_image):
+        print ("UFM Image load: ", ufm_image)
+        console._args = ["", "UFM", ufm_image]
+        console._do_load()
+    else:
+        console.run()
