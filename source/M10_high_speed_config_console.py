@@ -2063,7 +2063,7 @@ if __name__ == "__main__":
             print ("Usage:\n  py M10_high_speed_config.py -P comport [-U new_nios_hex_file | -b baud_rate]")
             print ("  Options: \n    -U: replace default nios image with a new one\n    -b: baud rate in bps \n    -h print usage")
             print ("\n    --CFM=image file for CFM \n    --UFM=image_file for UFM")
-            print ("\n  Example: using com port 7, baud rate 115200, default nios image")
+            print ("\n  Example: using com port 7, baud rate 921600, default FP51-1T image")
             print ("           py M10_high_speed_config.py -P COM7 -b 921600")
             sys.exit(1)
             
