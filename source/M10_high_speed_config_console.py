@@ -1,4 +1,4 @@
-#! python3
+#!/usr/bin/python3
 ###############################################################################
 # Copyright (c) 2016, PulseRain Technology LLC 
 #
@@ -2049,7 +2049,7 @@ if __name__ == "__main__":
           sys.exit(1)
     
     for opt, args in opts:
-        if opt in ('-b'): 
+        if opt in ('-b'): ex
             baud_rate = int (args)
         elif opt in ('-P'):
             com_port = args
