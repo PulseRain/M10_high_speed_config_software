@@ -2049,7 +2049,7 @@ if __name__ == "__main__":
           sys.exit(1)
     
     for opt, args in opts:
-        if opt in ('-b'): ex
+        if opt in ('-b'): 
             baud_rate = int (args)
         elif opt in ('-P'):
             com_port = args
