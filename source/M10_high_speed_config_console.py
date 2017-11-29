@@ -1627,7 +1627,7 @@ class Mustang_Console:
             else:
                 self._print_spin()
         
-        print ("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", end="")            
+        print ("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", end="")
     
     #========================================================================
     # _do_erase_flash
@@ -1801,10 +1801,14 @@ class Mustang_Console:
             data_list_to_write = data_list_to_write[0 : default_len]
      
         offset = 0
+        
         for i in range (len(flash_index)):
-            print ("Erasing...", self._args[1], ", flash index:",  flash_index[i])   
-            self._do_erase_flash_by_index(flash_index[i])
             
+            for j in range (i, len(flash_index)):
+                print ("Erasing...", self._args[1], ", flash index:",  flash_index[j])   
+                self._do_erase_flash_by_index(flash_index[j])
+        
+        
             print ("Loading...", self._args[2], ", start addr:", start_addr[i], ", flash size: ", flash_size[i])
         
             self._M10_high_speed_config_console._start_buf_fill (start_addr[i], \
@@ -2174,13 +2178,15 @@ if __name__ == "__main__":
     #=========================================================================
     if (cfm_image):
         print ("CFM Image load: ", cfm_image)
-        console._args = ["", "CFM", cfm_image]
-        console._do_load()
-        console._serial.close()
+        console._args = ["load", "cfm", cfm_image]
+        console._do_load_bin_file()
+        sleep(0.5)
+        console._M10_high_speed_config_console._serial.close()
     elif (ufm_image):
         print ("UFM Image load: ", ufm_image)
-        console._args = ["", "UFM", ufm_image]
-        console._do_load()
-        console._serial.close()
+        console._args = ["load", "ufm", ufm_image]
+        console._do_load_hex_file()
+        sleep(0.5)
+        console._M10_high_speed_config_console._serial.close()
     else:
         console.run()

@@ -6505,7 +6505,7 @@ TQKaBDQJaBLQJKBJQJOAJoH/AQn8H7ct6/eo8CJEAAAAAElFTkSuQmCC
     appname      = 'M10 High Speed Config Utility'
     frameWidth   = 1098
     frameHeight  = 736
-    version = "1.2.1"
+    version = "1.3.0"
     
     def main(self):
         # This method should be left intact!
