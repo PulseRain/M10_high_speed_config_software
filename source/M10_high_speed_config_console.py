@@ -2176,9 +2176,11 @@ if __name__ == "__main__":
         print ("CFM Image load: ", cfm_image)
         console._args = ["", "CFM", cfm_image]
         console._do_load()
+        console._serial.close()
     elif (ufm_image):
         print ("UFM Image load: ", ufm_image)
         console._args = ["", "UFM", ufm_image]
         console._do_load()
+        console._serial.close()
     else:
         console.run()
