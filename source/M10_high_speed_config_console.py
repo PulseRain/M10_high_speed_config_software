@@ -2039,7 +2039,7 @@ if __name__ == "__main__":
     
     print ("===============================================================================")
     print ("# Copyright (c) 2017, PulseRain Technology LLC ")
-    print ("# M10 high speed Configuration Utility, Version 1.0")
+    print ("# M10 high speed Configuration Utility, Version 2.0")
     
     
     #=========================================================================
