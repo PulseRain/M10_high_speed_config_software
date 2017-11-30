@@ -74,8 +74,11 @@ class Intel_Hex(ROM_Hex_Format):
         byte_count = int(tmp_line[1:3], 16)
         address = int (tmp_line[3:7], 16)
         record_type = int (tmp_line[7:9], 16)
-                    
-        assert (record_type <= self._RECORD_TYPE_EXT_SEG_ADDR)
+       
+        #assert (record_type <= self._RECORD_TYPE_EXT_SEG_ADDR)
+        if (record_type > self._RECORD_TYPE_EXT_SEG_ADDR):
+            print ("!!! Unknown record_type= ", record_type)
+        
         checksum_in_file = int (tmp_line[9 + byte_count * 2: 11 + byte_count * 2], 16)
         checksum = 0
                     
@@ -98,10 +101,13 @@ class Intel_Hex(ROM_Hex_Format):
             address = address * self.word_addr_factor
             
             data_record_list.append(self._data_record(address, byte_count, data))
+            
+            if (self.addr_min > address):
+                self.addr_min = address
         elif (record_type == self._RECORD_TYPE_EOF):
             assert (tmp_line == ":00000001FF")
         else:
-            assert (tmp_line == ":020000020000FC")
+            ## assert (tmp_line == ":020000020000FC")
             self.word_addr_factor = 4
         
         return data_record_list
@@ -111,6 +117,7 @@ class Intel_Hex(ROM_Hex_Format):
         data_record_list = []
         word_addr_factor = 1
         try:
+            self.addr_min = 0xFFFFFFFF
             
             if (not self.file_name):
                 for line in self.hex_list:
@@ -121,7 +128,13 @@ class Intel_Hex(ROM_Hex_Format):
                     for line in file:
                         data_record_list = self._line_process (line, data_record_list)
                     
+            #print ("self.addr_min= ", self.addr_min)
+            if (self.addr_min):
+                print ("==> pad zeros at the beginning.")
+                data_record_list.append(self._data_record(0, self.addr_min, [0]*self.addr_min))
+            
             sorted_data_record_list = sorted (data_record_list, key=self._get_data_record_key)
+            
             sorted_data_record_list.append(self._data_record(0, 0, []))
                         
         except IOError:
