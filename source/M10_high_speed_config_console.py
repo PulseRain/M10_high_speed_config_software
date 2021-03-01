@@ -598,11 +598,14 @@ class dummy_console:
         address = 0
         merge_data_list = []
         
-        start_time = time.clock()
+        start_time = time.time()
+        
         print_cnt = 0
         print ("Writing | ", end="")
         for record in intel_hex_file.data_record_list:
             #print ("xxxxaddr=", record.address, "data=", record.data_list)
+            
+            self.gui.ico_update()
             
             if ((print_cnt % 64) == 0):
                 print("#", end="")
@@ -654,7 +657,7 @@ class dummy_console:
         if (len(self._args) > 2):
             f.close()
         
-        end_time = time.clock()
+        end_time = time.time()
         delta_time = end_time - start_time
         print (" | 100% {0:0.2f}s".format(delta_time))        
         self._do_resume_cpu()
@@ -700,7 +703,7 @@ class dummy_console:
 # Methods
 #############################################################################
   
-    def __init__ (self, ocd):
+    def __init__ (self, ocd, gui):
         self._ocd = ocd
         self.uart_raw_mode_enable = 0
         self._do_uart_select()
@@ -719,6 +722,8 @@ class dummy_console:
         
         self.uart_raw_mode_enable = 0
         self._do_uart_select()
+        
+        self.gui = gui
         
 ###############################################################################
 # The M10_high_speed_config_console here implementes the command set for flash r/w.
